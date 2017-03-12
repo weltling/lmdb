@@ -25,7 +25,7 @@ install: all
 	if not exist $(PREFIX)\include mkdir $(PREFIX)\include
 	copy /Y lmdb.h $(PREFIX)\include
 	copy /Y $(LMDB_LIB) $(PREFIX)\lib
-	copy /Y liblmdb_a.pdb $(PREFIX)\lib
+	copy /Y $(LMDB_LIB_PDB) $(PREFIX)\lib
 	copy /Y mdb_copy.exe $(PREFIX)\bin
 	copy /Y mdb_load.exe $(PREFIX)\bin
 	copy /Y mdb_stat.exe $(PREFIX)\bin
