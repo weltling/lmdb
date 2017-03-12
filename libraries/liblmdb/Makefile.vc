@@ -3,21 +3,26 @@
 CC=cl.exe
 AR=lib.exe
 
-CFLAGS = /nologo /I win32 /Zi /MD /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
 
 PREFIX=install
 
-LIBS=liblmdb_a.lib
+!IF "$(DEBUG)"=="1"
+LMDB_LIB=liblmdb_a_debug.lib
+CFLAGS = /nologo /I win32 /Zi /MDd /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
+!ELSE
+LMDB_LIB=liblmdb_a.lib
+CFLAGS = /nologo /I win32 /Zi /MD /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
+!ENDIF
 PROGS=mdb_copy.exe mdb_load.exe mdb_stat.exe mdb_dump.exe
 
-all: $(LIBS) $(PROGS)
+all: $(LMDB_LIB) $(PROGS)
 
 install: all
 	if not exist $(PREFIX)\bin mkdir $(PREFIX)\bin
 	if not exist $(PREFIX)\lib mkdir $(PREFIX)\lib
 	if not exist $(PREFIX)\include mkdir $(PREFIX)\include
 	copy /Y lmdb.h $(PREFIX)\include
-	copy /Y liblmdb_a.lib $(PREFIX)\lib
+	copy /Y $(LMDB_LIB) $(PREFIX)\lib
 	copy /Y liblmdb_a.pdb $(PREFIX)\lib
 	copy /Y mdb_copy.exe $(PREFIX)\bin
 	copy /Y mdb_load.exe $(PREFIX)\bin
@@ -33,26 +38,26 @@ mdb.obj: mdb.c lmdb.h midl.h
 midl.obj: midl.c midl.h
 	$(CC) $(CFLAGS) /Fdliblmdb_a.pdb /c midl.c
 
-liblmdb_a.lib: mdb.obj midl.obj
-	$(AR) /nologo mdb.obj midl.obj /OUT:liblmdb_a.lib
+$(LMDB_LIB): mdb.obj midl.obj
+	$(AR) /nologo mdb.obj midl.obj /OUT:$(LMDB_LIB)
 
 getopt.obj: win32/getopt.c
 	$(CC) $(CFLAGS) /c win32/getopt.c
 
-mdb_copy.exe: getopt.obj liblmdb_a.lib
-	$(CC) $(CFLAGS) mdb_copy.c /link liblmdb_a.lib ntdll.lib advapi32.lib
+mdb_copy.exe: getopt.obj $(LMDB_LIB)
+	$(CC) $(CFLAGS) mdb_copy.c /link $(LMDB_LIB) ntdll.lib advapi32.lib
 
-mdb_load.exe: getopt.obj liblmdb_a.lib
-	$(CC) $(CFLAGS) mdb_load.c /link getopt.obj liblmdb_a.lib ntdll.lib advapi32.lib
+mdb_load.exe: getopt.obj $(LMDB_LIB)
+	$(CC) $(CFLAGS) mdb_load.c /link getopt.obj $(LMDB_LIB) ntdll.lib advapi32.lib
 
-mdb_stat.exe: getopt.obj liblmdb_a.lib
-	$(CC) $(CFLAGS) mdb_stat.c /link getopt.obj liblmdb_a.lib ntdll.lib advapi32.lib
+mdb_stat.exe: getopt.obj $(LMDB_LIB)
+	$(CC) $(CFLAGS) mdb_stat.c /link getopt.obj $(LMDB_LIB) ntdll.lib advapi32.lib
 
-mdb_dump.exe: getopt.obj liblmdb_a.lib
-	$(CC) $(CFLAGS) mdb_dump.c /link getopt.obj liblmdb_a.lib ntdll.lib advapi32.lib
+mdb_dump.exe: getopt.obj $(LMDB_LIB)
+	$(CC) $(CFLAGS) mdb_dump.c /link getopt.obj $(LMDB_LIB) ntdll.lib advapi32.lib
 
 test: all
-	$(CC) $(CFLAGS) mtest.c /link liblmdb_a.lib ntdll.lib advapi32.lib
+	$(CC) $(CFLAGS) mtest.c /link $(LMDB_LIB) ntdll.lib advapi32.lib
 	if exist testdb del /s /f /q testdb\*.*
 	if exist testdb rmdir testdb
 	mkdir testdb
