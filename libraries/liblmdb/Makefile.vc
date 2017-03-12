@@ -8,9 +8,11 @@ PREFIX=install
 
 !IF "$(DEBUG)"=="1"
 LMDB_LIB=liblmdb_a_debug.lib
+LMDB_LIB_PDB=liblmdb_a_debug.pdb
 CFLAGS = /nologo /I win32 /Zi /MDd /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
 !ELSE
 LMDB_LIB=liblmdb_a.lib
+LMDB_LIB_PDB=liblmdb_a.pdb
 CFLAGS = /nologo /I win32 /Zi /MD /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
 !ENDIF
 PROGS=mdb_copy.exe mdb_load.exe mdb_stat.exe mdb_dump.exe
@@ -30,13 +32,13 @@ install: all
 	copy /Y mdb_dump.exe $(PREFIX)\bin
 
 clean:
-	del *.obj *.lib *.exe
+	del *.obj *.lib *.exe *.pdb
 
 mdb.obj: mdb.c lmdb.h midl.h
-	$(CC) $(CFLAGS) /Fdliblmdb_a.pdb /c mdb.c
+	$(CC) $(CFLAGS) /Fd$(LMDB_LIB_PDB) /c mdb.c
 
 midl.obj: midl.c midl.h
-	$(CC) $(CFLAGS) /Fdliblmdb_a.pdb /c midl.c
+	$(CC) $(CFLAGS) /Fd$(LMDB_LIB_PDB) /c midl.c
 
 $(LMDB_LIB): mdb.obj midl.obj
 	$(AR) /nologo mdb.obj midl.obj /OUT:$(LMDB_LIB)
