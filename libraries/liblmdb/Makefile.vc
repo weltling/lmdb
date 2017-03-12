@@ -9,7 +9,7 @@ PREFIX=install
 !IF "$(DEBUG)"=="1"
 LMDB_LIB=liblmdb_a_debug.lib
 LMDB_LIB_PDB=liblmdb_a_debug.pdb
-CFLAGS = /nologo /I win32 /Zi /MDd /guard:cf /Zc:inline /Ox /W3 /GF /GL /Gw
+CFLAGS = /nologo /I win32 /Zi /MDd /Od /W3
 !ELSE
 LMDB_LIB=liblmdb_a.lib
 LMDB_LIB_PDB=liblmdb_a.pdb
